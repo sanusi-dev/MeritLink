@@ -1,0 +1,36 @@
+# Virtual environment
+.venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+
+# Environment
+.env
+.env.*
+!.env.example
+.python-version
+
+# IDE / editor
+.vscode/
+.idea/
+
+# Django
+db.sqlite3
+
+# Logs
+*.log
+
+# Node
+node_modules/
+
+# Compiled / vendored assets
+static/css/output.css
+static/css/sweetalert2.min.css
+static/js/htmx.min.js
+static/js/sweetalert2.min.js

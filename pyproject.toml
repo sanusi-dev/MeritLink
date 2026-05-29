@@ -1,0 +1,11 @@
+[project]
+name = "meritlink"
+version = "0.1.0"
+description = "MeritLink is a smart scholarship discovery platform that matches students to funding opportunities based on their academic profiles. It goes beyond simple search by helping students not just find scholarships, but genuinely compete for them."
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "django>=6.0.5",
+    "django-htmx>=1.27.0",
+    "djlint>=1.36.4",
+]

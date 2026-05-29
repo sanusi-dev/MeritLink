@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}App{% endblock %}</title>
+
+  {% load static %}
+
+  <link rel="stylesheet" href="{% static 'css/output.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/sweetalert2.min.css' %}" />
+
+  {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen">
+
+  {% block navbar %}{% endblock %}
+
+  <main class="container mx-auto px-4 py-8">
+    {% block content %}{% endblock %}
+  </main>
+
+  <script src="{% static 'js/htmx.min.js' %}"></script>
+  <script src="{% static 'js/sweetalert2.min.js' %}"></script>
+
+  <script>
+    const validIcons = ["success", "error", "warning", "info", "question"];
+
+    function showToastQueue(messages) {
+      if (!messages.length) return;
+      (function showNext(queue) {
+        if (!queue.length) return;
+        const { icon, title } = queue.shift();
+        Swal.fire({
+          toast: true,
+          position: "top-end",
+          icon: validIcons.includes(icon) ? icon : "info",
+          title: title,
+          showConfirmButton: false,
+          timer: 3500,
+          timerProgressBar: true,
+        }).then(() => showNext(queue));
+      })([...messages]);
+    }
+
+    // Full page load: messages rendered by Django template context processor
+    document.addEventListener("DOMContentLoaded", function () {
+      const messages = [
+        {% for message in messages %}
+        { icon: "{{ message.tags }}", title: "{{ message|escapejs }}" },
+        {% endfor %}
+      ];
+      showToastQueue(messages);
+    });
+
+    // HTMX requests: messages delivered via HX-Trigger → showMessages event
+    document.addEventListener("showMessages", function (e) {
+      showToastQueue(e.detail.value || e.detail || []);
+    });
+  </script>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>
