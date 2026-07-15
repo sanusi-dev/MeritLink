@@ -44,7 +44,7 @@ class Command(BaseCommand):
         skipped = 0
 
         for item in data:
-            url = item.get("source_url") or item.get("url")
+            url = item.get("source_url")
             if not url:
                 self.stdout.write(self.style.WARNING("Skipping item with no URL"))
                 skipped += 1

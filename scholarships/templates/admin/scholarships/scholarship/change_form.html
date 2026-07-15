@@ -1,0 +1,8 @@
+{% extends "admin/change_form.html" %}
+{% block submit_buttons_bottom %}
+  {{ block.super }}
+  <form method="post" action="{% url 'scholarships:queue_recheck' original.pk %}" class="mt-4">
+    {% csrf_token %}
+    <button type="submit" class="button">Queue for Recheck</button>
+  </form>
+{% endblock %}

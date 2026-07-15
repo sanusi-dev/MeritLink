@@ -11,12 +11,16 @@ class PendingUrl(models.Model):
     submitted_at = models.DateTimeField(auto_now_add=True)
     processed = models.BooleanField(default=False)
     processed_at = models.DateTimeField(null=True, blank=True)
+    source = models.CharField(max_length=50, default="user")
+    failure_type = models.CharField(max_length=20, null=True, blank=True)
+    attempts = models.IntegerField(default=0)
+    last_error = models.TextField(null=True, blank=True)
 
     class Meta:
         ordering = ["-submitted_at"]
 
     def __str__(self):
-        return f"User submitted: {self.url}"
+        return f"[{self.source}] {self.url}"
 
 
 class ReviewItem(models.Model):

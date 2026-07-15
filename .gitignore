@@ -23,7 +23,12 @@ build/
 # Django
 db.sqlite3
 
+# Script local state
+scripts/crawl_state.db
+scripts/llm_extraction.lock
+
 # Logs
+logs/
 *.log
 
 # Node

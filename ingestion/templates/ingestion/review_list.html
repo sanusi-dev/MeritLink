@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Review Queue{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Review Queue</h1>
+    <form method="post" action="{% url 'ingestion:run_queue' %}" class="inline">
+      {% csrf_token %}
+      <button type="submit"
+              class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700">
+        Run Queue Now
+      </button>
+    </form>
+  </div>
+
+  <div class="mb-8">
+    <div class="flex gap-1 mb-4 border-b border-gray-200">
+      <a href="{% url 'ingestion:review_list' %}"
+         class="px-4 py-2 text-sm font-medium rounded-t-md
+           {% if active_tab == 'all' %}bg-blue-100 text-blue-700{% else %}text-gray-500 hover:bg-gray-100{% endif %}">
+        All ({{ counts.all }})
+      </a>
+      <a href="{% url 'ingestion:review_list' %}?type=new"
+         class="px-4 py-2 text-sm font-medium rounded-t-md
+           {% if active_tab == 'new' %}bg-blue-100 text-blue-700{% else %}text-gray-500 hover:bg-gray-100{% endif %}">
+        New ({{ counts.new }})
+      </a>
+      <a href="{% url 'ingestion:review_list' %}?type=update"
+         class="px-4 py-2 text-sm font-medium rounded-t-md
+           {% if active_tab == 'update' %}bg-blue-100 text-blue-700{% else %}text-gray-500 hover:bg-gray-100{% endif %}">
+        Updates ({{ counts.update }})
+      </a>
+    </div>
+    {% if pending %}
+    <div class="overflow-hidden rounded-lg border border-gray-200">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50 text-left text-gray-600">
+          <tr>
+            <th class="px-4 py-3 font-medium">URL</th>
+            <th class="px-4 py-3 font-medium">Type</th>
+            <th class="px-4 py-3 font-medium">User</th>
+            <th class="px-4 py-3 font-medium">Created</th>
+            <th class="px-4 py-3 font-medium"></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          {% for item in pending %}
+          <tr class="hover:bg-gray-50">
+            <td class="px-4 py-3 text-gray-900 max-w-xs truncate">{{ item.source_url }}</td>
+            <td class="px-4 py-3">
+              <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium
+                {% if item.review_type == 'new' %}bg-blue-100 text-blue-700
+                {% else %}bg-amber-100 text-amber-700{% endif %}">
+                {{ item.review_type }}
+              </span>
+            </td>
+            <td class="px-4 py-3">
+              {% if item.is_user_submitted %}
+              <span class="text-green-600 text-xs">yes</span>
+              {% else %}
+              <span class="text-gray-400 text-xs">no</span>
+              {% endif %}
+            </td>
+            <td class="px-4 py-3 text-gray-500 text-xs">{{ item.created_at|date:"M d, H:i" }}</td>
+            <td class="px-4 py-3">
+              <a href="{% url 'ingestion:review_detail' item.pk %}"
+                 class="text-blue-600 hover:text-blue-800 font-medium text-xs">
+                Review →
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-gray-400 text-sm py-4">No pending items.</p>
+    {% endif %}
+  </div>
+
+  {% if recently_approved %}
+  <div class="mb-6">
+    <h2 class="text-sm font-semibold text-gray-500 mb-2">Recently Approved</h2>
+    <div class="rounded-lg border border-gray-200 divide-y divide-gray-100">
+      {% for item in recently_approved %}
+      <div class="px-4 py-2 text-sm flex justify-between items-center">
+        <span class="text-gray-700 truncate max-w-md">{{ item.source_url }}</span>
+        <span class="text-gray-400 text-xs">{{ item.reviewed_at|date:"M d, H:i" }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if recently_rejected %}
+  <div class="mb-6">
+    <h2 class="text-sm font-semibold text-gray-500 mb-2">Recently Rejected</h2>
+    <div class="rounded-lg border border-gray-200 divide-y divide-gray-100">
+      {% for item in recently_rejected %}
+      <div class="px-4 py-2 text-sm flex justify-between items-center">
+        <span class="text-gray-700 truncate max-w-md">{{ item.source_url }}</span>
+        <span class="text-gray-400 text-xs">{{ item.reviewed_at|date:"M d, H:i" }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

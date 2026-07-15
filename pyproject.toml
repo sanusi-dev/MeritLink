@@ -8,4 +8,7 @@ dependencies = [
     "django>=6.0.5",
     "django-htmx>=1.27.0",
     "djlint>=1.36.4",
+    "google-genai>=2.11.0",
+    "groq>=1.5.0",
+    "playwright>=1.61.0",
 ]

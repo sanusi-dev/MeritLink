@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block title %}Review — {{ review_item.source_url|truncatechars:60 }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+  <a href="{% url 'ingestion:review_list' %}"
+     class="text-sm text-gray-500 hover:text-gray-700 mb-4 inline-block">
+    ← Back to queue
+  </a>
+
+  <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+    <div class="flex items-center gap-2 mb-4">
+      <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium
+        {% if review_item.review_type == 'new' %}bg-blue-100 text-blue-700
+        {% else %}bg-amber-100 text-amber-700{% endif %}">
+        {{ review_item.review_type }}
+      </span>
+      <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium
+        {% if review_item.status == 'pending' %}bg-gray-100 text-gray-600
+        {% elif review_item.status == 'approved' %}bg-green-100 text-green-700
+        {% else %}bg-red-100 text-red-700{% endif %}">
+        {{ review_item.status }}
+      </span>
+      {% if review_item.is_user_submitted %}
+      <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-green-50 text-green-600">
+        user-submitted
+      </span>
+      {% endif %}
+    </div>
+
+    <dl class="text-sm space-y-1">
+      <div class="flex gap-2">
+        <dt class="text-gray-500 w-24">URL</dt>
+        <dd class="text-gray-900 break-all">{{ review_item.source_url }}</dd>
+      </div>
+      <div class="flex gap-2">
+        <dt class="text-gray-500 w-24">Created</dt>
+        <dd class="text-gray-700">{{ review_item.created_at|date:"M d, Y H:i" }}</dd>
+      </div>
+      {% if review_item.batch_id %}
+      <div class="flex gap-2">
+        <dt class="text-gray-500 w-24">Batch</dt>
+        <dd class="text-gray-700">{{ review_item.batch_id }}</dd>
+      </div>
+      {% endif %}
+    </dl>
+  </div>
+
+  {% if review_item.status == 'pending' %}
+  <form method="post" class="space-y-6">
+    {% csrf_token %}
+
+    <fieldset class="bg-white rounded-lg border border-gray-200 p-6">
+      <legend class="text-sm font-semibold text-gray-700 px-2">Basic</legend>
+      <div class="space-y-4 mt-3">
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Title</label>
+          {{ form.title }}
+          {% if form.title.errors %}<p class="text-red-500 text-xs mt-1">{{ form.title.errors }}</p>{% endif %}
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Provider</label>
+            {{ form.provider }}
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Application URL</label>
+            {{ form.application_url }}
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Description</label>
+          {{ form.description }}
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Short Summary</label>
+          {{ form.short_summary }}
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="bg-white rounded-lg border border-gray-200 p-6">
+      <legend class="text-sm font-semibold text-gray-700 px-2">Dates &amp; Status</legend>
+      <div class="grid grid-cols-3 gap-4 mt-3">
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Deadline</label>
+          {{ form.application_deadline }}
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Start Date</label>
+          {{ form.program_start_date }}
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Status</label>
+          {{ form.status }}
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="bg-white rounded-lg border border-gray-200 p-6">
+      <legend class="text-sm font-semibold text-gray-700 px-2">Eligibility</legend>
+      <div class="space-y-4 mt-3">
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Eligible Nationalities</label>
+          {{ form.eligible_nationalities }}
+          {% if form.eligible_nationalities.help_text %}
+          <p class="text-gray-400 text-xs mt-1">{{ form.eligible_nationalities.help_text }}</p>
+          {% endif %}
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Study Levels</label>
+          {{ form.eligible_study_levels }}
+          {% if form.eligible_study_levels.help_text %}
+          <p class="text-gray-400 text-xs mt-1">{{ form.eligible_study_levels.help_text }}</p>
+          {% endif %}
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Fields of Study</label>
+          {{ form.eligible_fields_of_study }}
+          {% if form.eligible_fields_of_study.help_text %}
+          <p class="text-gray-400 text-xs mt-1">{{ form.eligible_fields_of_study.help_text }}</p>
+          {% endif %}
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Study Destinations</label>
+          {{ form.study_destinations }}
+          {% if form.study_destinations.help_text %}
+          <p class="text-gray-400 text-xs mt-1">{{ form.study_destinations.help_text }}</p>
+          {% endif %}
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Min GPA</label>
+            {{ form.min_gpa }}
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">GPA Scale</label>
+            {{ form.gpa_scale }}
+          </div>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="bg-white rounded-lg border border-gray-200 p-6">
+      <legend class="text-sm font-semibold text-gray-700 px-2">Funding</legend>
+      <div class="space-y-4 mt-3">
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Funding Details</label>
+          {{ form.funding_details }}
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Number of Awards</label>
+          {{ form.number_of_awards }}
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="bg-white rounded-lg border border-gray-200 p-6">
+      <legend class="text-sm font-semibold text-gray-700 px-2">Other</legend>
+      <div class="space-y-4 mt-3">
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Eligibility Details</label>
+          {{ form.eligibility_details }}
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Benefits</label>
+          {{ form.benefits }}
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Tags</label>
+          {{ form.tags }}
+          {% if form.tags.help_text %}
+          <p class="text-gray-400 text-xs mt-1">{{ form.tags.help_text }}</p>
+          {% endif %}
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="flex gap-3">
+      <button type="submit" name="approve"
+              class="px-6 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700">
+        Approve
+      </button>
+      <button type="submit" name="reject"
+              class="px-6 py-2 bg-red-100 text-red-700 rounded-md text-sm font-medium hover:bg-red-200">
+        Reject
+      </button>
+    </div>
+  </form>
+  {% else %}
+  <div class="bg-gray-50 rounded-lg border border-gray-200 p-6 text-center">
+    <p class="text-gray-500 text-sm">
+      This item has already been {{ review_item.status }}.
+    </p>
+  </div>
+  {% endif %}
+
+  <details class="mt-8">
+    <summary class="text-sm text-gray-400 cursor-pointer hover:text-gray-600">
+      Raw extraction (for debugging)
+    </summary>
+    <pre class="mt-3 bg-gray-900 text-gray-100 rounded-lg p-4 text-xs overflow-x-auto"><code>{{ review_item.raw_extraction|pprint }}</code></pre>
+  </details>
+</div>
+{% endblock %}
